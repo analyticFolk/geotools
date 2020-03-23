@@ -116,11 +116,17 @@ public class S3Connector {
 
             Properties prop = readProperties(s3Alias);
 
-            s3 =
-                    new AmazonS3Client(
-                            new BasicAWSCredentials(
-                                    prop.getProperty(s3Alias + ".s3.user"),
-                                    prop.getProperty(s3Alias + ".s3.password")));
+            if ("".equals(prop.getProperty(s3Alias + ".s3.user"))) {
+                LOGGER.fine(
+                        "Not setting credentials as username is blank. Assume running in AWS with proper role assigned.");
+                s3 = new AmazonS3Client();
+            } else {
+                s3 =
+                        new AmazonS3Client(
+                                new BasicAWSCredentials(
+                                        prop.getProperty(s3Alias + ".s3.user"),
+                                        prop.getProperty(s3Alias + ".s3.password")));
+            }
 
             final S3ClientOptions clientOptions =
                     S3ClientOptions.builder().setPathStyleAccess(true).build();
